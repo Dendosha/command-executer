@@ -7,16 +7,31 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-import { DirExecutor } from './commands/dir/dir.execute.js';
-// import { FfmpegExecuter } from './commands/ffmpeg/ffmpeg.executer.js';
-import { ConsoleLogger } from './out/console-logger/console-logger.js';
-export class App {
-    run() {
+import { promises } from 'fs';
+import { dirname, isAbsolute, join } from 'path';
+export class FileService {
+    isExist(path) {
         return __awaiter(this, void 0, void 0, function* () {
-            // new FfmpegExecuter(ConsoleLogger.getInstance()).execute();
-            new DirExecutor(ConsoleLogger.getInstance()).execute();
+            try {
+                yield promises.stat(path);
+                return true;
+            }
+            catch (_a) {
+                return false;
+            }
+        });
+    }
+    getFilePath(path, name, ext) {
+        if (!isAbsolute(path)) {
+            path = join(__dirname + '/' + path);
+        }
+        return join(dirname(path) + '/' + name + '.' + ext);
+    }
+    deleteFileIfExists(path) {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (yield this.isExist(path)) {
+                promises.unlink(path);
+            }
         });
     }
 }
-const app = new App();
-app.run();
